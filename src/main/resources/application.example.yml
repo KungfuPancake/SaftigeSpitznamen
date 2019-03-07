@@ -1,0 +1,11 @@
+spring:
+  jpa.hibernate.ddl-auto: none
+  datasource:
+    url: "jdbc:mysql://nicknames-db:3306/nicknames?useUnicode=yes&characterEncoding=UTF8"
+    username: user
+    password: password
+    connectionInitSql: "SET NAMES 'utf8mb4'"
+
+app:
+  discord:
+    token: my-token
