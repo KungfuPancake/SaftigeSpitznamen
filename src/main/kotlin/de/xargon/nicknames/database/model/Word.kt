@@ -9,5 +9,8 @@ data class Word(
         val id: Long,
 
         @Column(nullable = false, unique = false, length = 191)
-        var value:String
+        var value: String,
+
+        @Column(nullable = true, unique = false, length = 191)
+        var prefix: String?
 )

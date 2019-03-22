@@ -12,6 +12,8 @@ class WordController {
     @Autowired
     private lateinit var wordRepository: WordRepository
 
+    private val wordMatcher = "([^\\(]*)\\(([^\\)]*)\\)".toRegex()
+
     fun getWordCount(): Long {
         return this.wordRepository.count()
     }
@@ -25,7 +27,11 @@ class WordController {
                 list.add("Schnitzel")
             } else {
                 val word = words.elementAt((Math.random() * words.count()).toInt())
-                list.add(word.value)
+                if (count == length || word.prefix == null) {
+                    list.add(word.value)
+                } else {
+                    list.add(word.prefix.toString())
+                }
                 words.remove(word)
             }
         }
@@ -47,11 +53,19 @@ class WordController {
                 } else {
                     result.wordsNotRemoved.add(word)
                 }
-
             } else {
-                word = word.capitalize()
-                if (!this.wordRepository.existsByValue(word) && !result.wordsAdded.contains(word)) {
-                    this.wordRepository.save(Word(0, word))
+                var suffixWord = word
+                var prefixWord: String? = null
+                if (this.wordMatcher.matches(word)) {
+                    // this includes a prefix
+                    suffixWord = this.wordMatcher.matchEntire(word)?.groupValues?.get(1)?.capitalize() ?: ""
+                    prefixWord = suffixWord + this.wordMatcher.matchEntire(word)?.groupValues?.get(2)
+                } else {
+                    word = word.capitalize()
+                }
+
+                if (!this.wordRepository.existsByValue(suffixWord) && !result.wordsAdded.contains(suffixWord)) {
+                    this.wordRepository.save(Word(0, suffixWord, prefixWord))
                     result.wordsAdded.add(word)
                 } else {
                     result.wordsNotAdded.add(word)
